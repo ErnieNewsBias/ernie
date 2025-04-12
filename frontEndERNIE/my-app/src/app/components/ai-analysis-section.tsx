@@ -86,6 +86,7 @@ export default function AIAnalysisSection({ analysis }: AIAnalysisProps) {
             <Tabs value={tabValue} onChange={handleTabChange} aria-label="analysis tabs" variant="fullWidth">
               <Tab label="AI Notes" id="analysis-tab-0" aria-controls="analysis-tabpanel-0" />
               <Tab label="Bias Quotes" id="analysis-tab-1" aria-controls="analysis-tabpanel-1" />
+
             </Tabs>
           </Box>
 
