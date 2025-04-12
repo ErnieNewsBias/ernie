@@ -53,7 +53,7 @@ export default function BiasScoreDisplay({
     )
   }
 
-  const gaugeColor = leaning === "left" ? "#1976d2" : leaning === "right" ? "#d32f2f" : "#6c757d"
+  const gaugeColor = leaning === "left" ? "#0b52e1" : leaning === "right" ? "#ce1717" : "#6c757d"
 
   const leftIntensity = Math.max(0, -clampedScore) / 100
   const rightIntensity = Math.max(0, clampedScore) / 100
