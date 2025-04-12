@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: .
+    container_name: ernie_backend_service
+    ports:
+      # Map port 5002 on your HOST machine to port 8080 INSIDE the container
+      # Access the app via http://localhost:5002 on your browser
+      - "5002:8080" # <-- Changed BOTH host and container ports here
+    # Environment variables are set in the Dockerfile
+    # volumes: # Uncomment for development live-reload
+    #  - .:/app
