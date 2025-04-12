@@ -82,7 +82,7 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     console.log("Form submitted with URL:", url)
-
+  
     if (!url) {
       console.log("URL is empty, not proceeding")
       return
@@ -131,6 +131,11 @@ export default function Home() {
       setIsLoading(false)
     }
   }
+
+  const handleAnalyzeSimilarArticle = async (newUrl: string) => {
+    setUrl(newUrl);
+    await handleSubmit(new Event('submit') as unknown as React.FormEvent);
+  };
 
   const determineLeaning = (score: number | null): string => {
     if (score === null) return 'center';
@@ -241,13 +246,40 @@ export default function Home() {
                   <AIAnalysisSection analysis={apiData.analysis} />
 
                    {apiData.similar_articles && Object.keys(apiData.similar_articles).length > 0 && (
-                      <SimilarArticlesSection articles={apiData.similar_articles} />
+                      <SimilarArticlesSection
+                      articles={apiData.similar_articles}
+                      onAnalyze={handleAnalyzeSimilarArticle}
+                    />
                    )}
 
                 </Box>
               )}
             </CardContent>
           </Card>
+          <Box
+          sx={{
+            mt: 6,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            flexDirection: 'column',
+            pb: 4,
+             // padding at bottom
+          }}
+          >
+          <img
+            src="https://cdn.discordapp.com/attachments/1360451825450488009/1360734896519118998/abc.png?ex=67fc32a0&is=67fae120&hm=8f7c9012ec931925cce62140d3191101b45bccaff19f80c8e315c3f077d0cd60&"
+            alt="ErnieNews Logo"
+            style={{
+              width: '200px', // adjust width as needed
+              maxWidth: '80%',
+              height: 'auto',
+            }}
+            />
+            <Typography variant="caption" color="white" sx={{ mt: 1 }}>
+              © 2025 ErnieNews
+            </Typography>
+          </Box>
         </Container>
       </Box>
     </ThemeProvider>

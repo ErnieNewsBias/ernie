@@ -7,7 +7,8 @@ import {
   CardActionArea,
   CardMedia,
   CardContent,
-  Link
+  Link,
+  Button,
 } from "@mui/material"
 
 interface SimilarArticleDetail {
@@ -23,9 +24,10 @@ interface SimilarArticlesData {
 
 interface SimilarArticlesProps {
   articles: SimilarArticlesData;
+  onAnalyze: (url: string) => void;
 }
 
-export default function SimilarArticlesSection({ articles }: SimilarArticlesProps) {
+export default function SimilarArticlesSection({ articles, onAnalyze }: SimilarArticlesProps) {
   const articleEntries = Object.entries(articles);
 
   if (articleEntries.length === 0) {
@@ -45,7 +47,7 @@ export default function SimilarArticlesSection({ articles }: SimilarArticlesProp
           overflowX: 'auto',
           flexWrap: 'nowrap',
           gap: 2,
-          pb: 1, // padding bottom so scroll looks nicer
+          pb: 1,
           '&::-webkit-scrollbar': {
             height: 8,
           },
@@ -63,7 +65,8 @@ export default function SimilarArticlesSection({ articles }: SimilarArticlesProp
               maxWidth: 300,
               display: 'flex',
               flexDirection: 'column',
-              flexShrink: 0, // Don't shrink when scrolling
+              flexShrink: 0,
+              justifyContent: 'space-between', // makes room for button
             }}
           >
             <CardActionArea
@@ -93,6 +96,18 @@ export default function SimilarArticlesSection({ articles }: SimilarArticlesProp
                 </Typography>
               </CardContent>
             </CardActionArea>
+
+            {/* "Analyze This" Button */}
+            <Box sx={{ p: 1 }}>
+              <Button
+                variant="contained"
+                size="small"
+                fullWidth
+                onClick={() => onAnalyze(url)}
+              >
+                Analyze This
+              </Button>
+            </Box>
           </Card>
         ))}
       </Box>
