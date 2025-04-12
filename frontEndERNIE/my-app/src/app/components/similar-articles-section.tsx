@@ -76,20 +76,17 @@ export default function SimilarArticlesSection({ articles, onAnalyze }: SimilarA
               rel="noopener noreferrer"
               sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}
             >
-              {details.image_url ? (
-                <CardMedia
-                  component="img"
-                  height="140"
-                  image={details.image_url}
-                  alt={details.title || 'Article image'}
-                  sx={{ objectFit: 'cover' }}
-                  onError={(e: any) => { e.target.style.display = 'none'; }}
-                />
-              ) : (
-                <Box sx={{ height: 140, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.200' }}>
-                  <Typography variant="caption" color="text.secondary">No Image</Typography>
-                </Box>
-              )}
+              <CardMedia
+  component="img"
+  height="140"
+  image={details.image_url || "https://cdn.discordapp.com/attachments/1360451825450488009/1360743647359799486/BLUEELEPLAHNT.png?ex=67fc3ac6&is=67fae946&hm=9efd46028b480bd0f14e2820e5b6a55a9c74e21406fa2dde09b613498d684fc4&"}
+  alt={details.title || 'Article image'}
+  sx={{ objectFit: 'cover' }}
+  onError={(e: any) => {
+    e.target.onerror = null;
+    e.target.src = "https://cdn.discordapp.com/attachments/1360451825450488009/1360743647359799486/BLUEELEPLAHNT.png?ex=67fc3ac6&is=67fae946&hm=9efd46028b480bd0f14e2820e5b6a55a9c74e21406fa2dde09b613498d684fc4&";
+  }}
+/>
               <CardContent sx={{ flexGrow: 1 }}>
                 <Typography gutterBottom variant="body1" component="div" sx={{ fontWeight: 500 }}>
                   {details.title || 'Article'}
