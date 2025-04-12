@@ -92,8 +92,8 @@ export default function AIAnalysisSection({ analysis }: AIAnalysisProps) {
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
             <Tabs value={tabValue} onChange={handleTabChange} aria-label="analysis tabs" variant="fullWidth">
               <Tab label="Summary" id="analysis-tab-0" aria-controls="analysis-tabpanel-0" />
-              <Tab label="Key Points" id="analysis-tab-1" aria-controls="analysis-tabpanel-1" />
-              <Tab label="Bias Factors" id="analysis-tab-2" aria-controls="analysis-tabpanel-2" />
+              <Tab label="Quotes" id="analysis-tab-1" aria-controls="analysis-tabpanel-1" />
+              <Tab label="Similar Sources" id="analysis-tab-2" aria-controls="analysis-tabpanel-2" />
             </Tabs>
           </Box>
 
