@@ -1,24 +1,20 @@
 "use client"
 
 import {
-    Box,
-    Typography,
-    Grid,
-    Card,
-    CardActionArea,
-    CardMedia,
-    CardContent,
-    Link, // Use Link for clickable behavior
-    Skeleton // Use Skeleton for loading/missing images
+  Box,
+  Typography,
+  Card,
+  CardActionArea,
+  CardMedia,
+  CardContent,
+  Link
 } from "@mui/material"
-import OpenInNewIcon from '@mui/icons-material/OpenInNew'; // Icon for external link
 
-// Interface matching the structure in page.tsx
 interface SimilarArticleDetail {
-    image_url: string | null
-    score: number // Score not used in rendering currently, but available
-    text_preview: string | null
-    title: string | null
+  image_url: string | null
+  score: number
+  text_preview: string | null
+  title: string | null
 }
 
 interface SimilarArticlesData {
@@ -26,72 +22,80 @@ interface SimilarArticlesData {
 }
 
 interface SimilarArticlesProps {
-    articles: SimilarArticlesData;
+  articles: SimilarArticlesData;
 }
 
 export default function SimilarArticlesSection({ articles }: SimilarArticlesProps) {
-    const articleEntries = Object.entries(articles);
+  const articleEntries = Object.entries(articles);
 
-    if (articleEntries.length === 0) {
-        return null; // Don't render anything if no similar articles
-    }
+  if (articleEntries.length === 0) {
+    return null;
+  }
 
-    return (
-        <Box sx={{ mt: 4 }}>
-            <Typography variant="h6" sx={{ mb: 2 }}>
-                Similar Articles
-            </Typography>
-            <Grid container spacing={2}>
-                {articleEntries.map(([url, details]) => (
-                    <Grid item xs={12} sm={6} md={4} key={url}>
-                        <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                            {/* Make the whole card clickable */}
-                            <CardActionArea
-                                component={Link} // Use Link component
-                                href={url}
-                                target="_blank" // Open in new tab
-                                rel="noopener noreferrer" // Security best practice
-                                sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}
-                            >
-                                {details.image_url ? (
-                                    <CardMedia
-                                        component="img"
-                                        height="140"
-                                        image={details.image_url}
-                                        alt={details.title || 'Article image'}
-                                        sx={{ objectFit: 'cover' }} // Cover ensures image fills space nicely
-                                        onError={(e: any) => { e.target.style.display = 'none'; /* Hide if image fails */ }}
-                                    />
-                                ) : (
-                                    // Placeholder if no image
-                                    <Box sx={{ height: 140, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.200' }}>
-                                        <Typography variant="caption" color="text.secondary">No Image</Typography>
-                                    </Box>
-                                )}
-                                <CardContent sx={{ flexGrow: 1 }}>
-                                    <Typography gutterBottom variant="body1" component="div" sx={{ fontWeight: 500 }}>
-                                        {details.title || 'Article'}
-                                    </Typography>
-                                    {/* Optionally display text preview */}
-                                    {/*
-                                    <Typography variant="body2" color="text.secondary">
-                                        {details.text_preview}
-                                    </Typography>
-                                     */}
-                                </CardContent>
-                            </CardActionArea>
-                             {/* Optional: Add an explicit link icon/button if needed */}
-                             {/*
-                             <Box sx={{ p: 1, display: 'flex', justifyContent: 'flex-end' }}>
-                                <Link href={url} target="_blank" rel="noopener noreferrer">
-                                    <OpenInNewIcon fontSize="small" />
-                                </Link>
-                             </Box>
-                             */}
-                        </Card>
-                    </Grid>
-                ))}
-            </Grid>
-        </Box>
-    );
-} 
+  return (
+    <Box sx={{ mt: 4 }}>
+      <Typography variant="h6" sx={{ mb: 2 }}>
+        Similar Articles
+      </Typography>
+
+      {/* HORIZONTAL SCROLL CONTAINER */}
+      <Box
+        sx={{
+          display: 'flex',
+          overflowX: 'auto',
+          flexWrap: 'nowrap',
+          gap: 2,
+          pb: 1, // padding bottom so scroll looks nicer
+          '&::-webkit-scrollbar': {
+            height: 8,
+          },
+          '&::-webkit-scrollbar-thumb': {
+            backgroundColor: 'rgba(0, 0, 0, 0.2)',
+            borderRadius: 4,
+          },
+        }}
+      >
+        {articleEntries.map(([url, details]) => (
+          <Card
+            key={url}
+            sx={{
+              minWidth: 250,
+              maxWidth: 300,
+              display: 'flex',
+              flexDirection: 'column',
+              flexShrink: 0, // Don't shrink when scrolling
+            }}
+          >
+            <CardActionArea
+              component={Link}
+              href={url}
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ flexGrow: 1, display: 'flex', flexDirection: 'column' }}
+            >
+              {details.image_url ? (
+                <CardMedia
+                  component="img"
+                  height="140"
+                  image={details.image_url}
+                  alt={details.title || 'Article image'}
+                  sx={{ objectFit: 'cover' }}
+                  onError={(e: any) => { e.target.style.display = 'none'; }}
+                />
+              ) : (
+                <Box sx={{ height: 140, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.200' }}>
+                  <Typography variant="caption" color="text.secondary">No Image</Typography>
+                </Box>
+              )}
+              <CardContent sx={{ flexGrow: 1 }}>
+                <Typography gutterBottom variant="body1" component="div" sx={{ fontWeight: 500 }}>
+                  {details.title || 'Article'}
+                </Typography>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        ))}
+      </Box>
+    </Box>
+  )
+}

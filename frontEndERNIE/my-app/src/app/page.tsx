@@ -57,7 +57,7 @@ const theme = createTheme({
       main: "#dc004e",
     },
     background: {
-      default: "#f5f5f5",
+      default: "#95c2ee", // Set this to match your gradient start color
     },
   },
   typography: {
@@ -144,21 +144,22 @@ export default function Home() {
       <CssBaseline />
       <Box
         sx={{
-          minHeight: "100vh",
-          py: 4,
-          px: 2,
-          bgcolor: "background.default",
+          minHeight: "200vh",
+          py: 7,
+          px: 1,
+          background: "linear-gradient(to bottom right,#95c2ee,#f07d7d)",
         }}
       >
         <Container maxWidth="md">
-          <Typography variant="h4" component="h1" gutterBottom>
-            Article Bias Analyzer
+          <Typography variant="h4" component="h1" gutterBottom sx={{ fontFamily: 'Garamond', fontWeight: 'bold', color: 'white',textShadow: '1px 1px 3px rgba(0,0,0,0.6)'}}>
+                Article Bias Analyzer
           </Typography>
-          <Typography variant="body1" color="text.secondary" sx={{ mb: 4 }}>
+          <Typography variant="body1" color="white" sx={{ mb: 4 , fontWeight: 'bold' }}><font face = "Garamond">
             Enter a link to any article to analyze its political bias and receive an AI-powered content analysis.
+            </font>
           </Typography>
 
-          <Paper elevation={2} sx={{ p: 3, mb: 4 }}>
+          <Paper elevation={5} sx={{ p: 2, mb: 2 }}>
             <form onSubmit={handleSubmit}>
               <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2 }}>
                 <TextField
@@ -199,7 +200,7 @@ export default function Home() {
             </form>
           </Paper>
 
-          <Card sx={{ mt: 4 }}>
+          <Card elevation = {5} sx={{ mt: 4 }}>
             <CardContent>
               {!analysisComplete && !isLoading && !apiError && (
                 <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", py: 4 }}>
