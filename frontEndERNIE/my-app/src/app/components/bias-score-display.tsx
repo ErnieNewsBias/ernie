@@ -12,25 +12,24 @@ interface BiasScoreDisplayProps {
 
 export default function BiasScoreDisplay({
   isPlaceholder,
-  score = 50,
+  score = 0,
   leaning = "center",
   confidence = null,
 }: BiasScoreDisplayProps) {
   const svgRef = useRef<SVGSVGElement>(null)
 
-  // Normalize score ensures it's between 0 and 100
-  const normalizedScore = score === null ? 50 : Math.max(0, Math.min(100, score));
+  // Clamp score between -100 and 100
+  const clampedScore = Math.max(-100, Math.min(100, score ?? 0))
 
   useEffect(() => {
     if (isPlaceholder || !svgRef.current) return
 
-    // Animation for the gauge needle
     const needle = svgRef.current.querySelector("#needle")
     if (needle) {
-      const rotation = -90 + normalizedScore * 1.8 // Map 0-100 to -90 to 90 degrees
+      const rotation = clampedScore * 0.9 // -100 -> -90deg, 0 -> 0deg, +100 -> +90deg
       needle.setAttribute("transform", `rotate(${rotation}, 150, 150)`)
     }
-  }, [isPlaceholder, normalizedScore])
+  }, [isPlaceholder, clampedScore])
 
   if (isPlaceholder) {
     return (
@@ -54,12 +53,10 @@ export default function BiasScoreDisplay({
     )
   }
 
-  // Determine color based on leaning prop
-  const gaugeColor = leaning === "left" ? "#1976d2" : leaning === "right" ? "#d32f2f" : "#6c757d"; // Grey for center
+  const gaugeColor = leaning === "left" ? "#1976d2" : leaning === "right" ? "#d32f2f" : "#6c757d"
 
-  // Determine gradient based on normalized score (center bias around 50)
-  const leftIntensity = Math.max(0, (50 - normalizedScore) * 2) / 100; // Intensity increases as score goes below 50
-  const rightIntensity = Math.max(0, (normalizedScore - 50) * 2) / 100; // Intensity increases as score goes above 50
+  const leftIntensity = Math.max(0, -clampedScore) / 100
+  const rightIntensity = Math.max(0, clampedScore) / 100
 
   return (
     <Box sx={{ width: "100%", maxWidth: 400, mx: "auto" }}>
@@ -85,7 +82,7 @@ export default function BiasScoreDisplay({
           stroke={gaugeColor}
           strokeWidth="3"
           strokeLinecap="round"
-          transform={`rotate(${-90 + normalizedScore * 1.8}, 150, 150)`}
+          transform={`rotate(${clampedScore * 0.9}, 150, 150)`}
         />
         <circle cx="150" cy="150" r="10" fill={gaugeColor} />
         <circle cx="150" cy="150" r="5" fill="white" />
@@ -130,7 +127,7 @@ export default function BiasScoreDisplay({
         </Box>
         <Box sx={{ flex: 1, textAlign: 'center' }}>
           <Typography variant="h6" fontWeight="bold" component="span" color={gaugeColor}>
-            {normalizedScore.toFixed(1)}
+            {clampedScore.toFixed(1)}
           </Typography>
           <Typography variant="body2" color="text.secondary" component="span" sx={{ ml: 0.5 }}>
             / 100

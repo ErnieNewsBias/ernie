@@ -152,7 +152,7 @@ export default function Home() {
           minHeight: "200vh",
           py: 7,
           px: 1,
-          background: "linear-gradient(to bottom right,#95c2ee,#f07d7d)",
+          background: "linear-gradient(to bottom right,#628fe9,#f07d7d)",
         }}
       >
         <Container maxWidth="md">
