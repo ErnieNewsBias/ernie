@@ -6,3 +6,4 @@ python-dotenv
 lxml_html_clean
 gunicorn
 google-search-results
+flask-cors

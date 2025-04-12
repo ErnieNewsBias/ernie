@@ -13,11 +13,39 @@ import {
   CardContent,
   CircularProgress,
   Paper,
+  Grid,
 } from "@mui/material"
 import BiasScoreDisplay from "@/app/components/bias-score-display"
 import AIAnalysisSection from "@/app/components/ai-analysis-section"
+import SimilarArticlesSection from "@/app/components/similar-articles-section"
 import { ThemeProvider, createTheme } from "@mui/material/styles"
 import CssBaseline from "@mui/material/CssBaseline"
+
+// --- Interfaces for API data ---
+interface OriginalArticle {
+  url: string
+  title: string | null
+  image_url: string | null
+  text_preview: string | null
+}
+
+interface AnalysisData {
+  bias: number | null
+  ai_notes: string | null
+  bias_quotes: string | null
+  search_query: string | null
+}
+
+interface SimilarArticleDetail {
+    image_url: string | null
+    score: number
+    text_preview: string | null
+    title: string | null
+}
+
+interface SimilarArticlesData {
+  [url: string]: SimilarArticleDetail;
+}
 
 // Create a theme
 const theme = createTheme({
@@ -44,14 +72,14 @@ export default function Home() {
   const [url, setUrl] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const [analysisComplete, setAnalysisComplete] = useState(false)
-  const [biasData, setBiasData] = useState(null)
-  const [aiAnalysis, setAiAnalysis] = useState<{
-    summary: string
-    keyPoints: string[]
-    biasFactors: { factor: string; score: number }[]
+  const [apiData, setApiData] = useState<{
+    original_article: OriginalArticle | null
+    analysis: AnalysisData | null
+    similar_articles: SimilarArticlesData | null
   } | null>(null)
+  const [apiError, setApiError] = useState<string | null>(null)
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     console.log("Form submitted with URL:", url)
 
@@ -60,7 +88,6 @@ export default function Home() {
       return
     }
 
-    // Add basic URL validation
     let processUrl = url
     if (!url.startsWith("http://") && !url.startsWith("https://")) {
       processUrl = "https://" + url
@@ -69,39 +96,47 @@ export default function Home() {
     }
 
     setIsLoading(true)
+    setAnalysisComplete(false)
+    setApiData(null)
+    setApiError(null)
 
-    // Simulate API call with timeout
-    setTimeout(() => {
-      // Generate synthetic data
-      const generatedBiasData = {
-        score: Math.random() * 100,
-        leaning: Math.random() > 0.5 ? "left" : "right",
-        confidence: 70 + Math.random() * 25,
+    try {
+      const apiUrl = `http://127.0.0.1:5000/scrape?url=${encodeURIComponent(processUrl)}`
+      console.log("Calling API:", apiUrl)
+
+      const response = await fetch(apiUrl)
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}))
+        throw new Error(errorData?.error || `API request failed with status ${response.status}`)
       }
 
-      const generatedAnalysis = {
-        summary:
-          "This article discusses the economic implications of recent policy changes. The author presents multiple viewpoints but tends to favor economic deregulation.",
-        keyPoints: [
-          "Discusses fiscal policy changes proposed by the administration",
-          "Presents arguments from both supporters and critics",
-          "Uses emotionally charged language when describing opposition views",
-          "Cites studies that predominantly support one perspective",
-        ],
-        biasFactors: [
-          { factor: "Source selection", score: 65 },
-          { factor: "Language tone", score: 72 },
-          { factor: "Context omission", score: 58 },
-          { factor: "Fact presentation", score: 43 },
-        ],
-      }
+      const data = await response.json()
+      console.log("API Response:", data)
 
-      setBiasData(generatedBiasData)
-      setAiAnalysis(generatedAnalysis)
-      setIsLoading(false)
+      setApiData({
+        original_article: data.original_article ?? null,
+        analysis: data.analysis ?? null,
+        similar_articles: data.similar_articles ?? null,
+      })
+
       setAnalysisComplete(true)
       console.log("Analysis completed for URL:", processUrl)
-    }, 2000)
+
+    } catch (error: any) {
+      console.error("API call failed:", error)
+      setApiError(error.message || "An unknown error occurred")
+      setAnalysisComplete(false)
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const determineLeaning = (score: number | null): string => {
+    if (score === null) return 'center';
+    if (score < 40) return 'left';
+    if (score > 60) return 'right';
+    return 'center';
   }
 
   return (
@@ -140,6 +175,7 @@ export default function Home() {
                     }
                   }}
                   helperText={!url ? "Enter a website URL (with or without https://)" : ""}
+                  error={!!apiError}
                 />
                 <Button
                   variant="contained"
@@ -155,12 +191,17 @@ export default function Home() {
                   {isLoading ? "Analyzing..." : "Analyze Article"}
                 </Button>
               </Box>
+              {apiError && (
+                <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+                  Error: {apiError}
+                </Typography>
+              )}
             </form>
           </Paper>
 
           <Card sx={{ mt: 4 }}>
             <CardContent>
-              {!analysisComplete && !isLoading && (
+              {!analysisComplete && !isLoading && !apiError && (
                 <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", py: 4 }}>
                   <BiasScoreDisplay isPlaceholder={true} />
                   <Typography color="text.secondary" sx={{ mt: 2 }}>
@@ -178,18 +219,30 @@ export default function Home() {
                 </Box>
               )}
 
-              {analysisComplete && biasData && aiAnalysis && (
+              {apiError && !isLoading && (
+                 <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", py: 4 }}>
+                    <Typography color="error" variant="h6">Analysis Failed</Typography>
+                    <Typography color="error" variant="body1" sx={{ mt: 1 }}>
+                      {apiError}
+                    </Typography>
+                 </Box>
+              )}
+
+              {analysisComplete && !apiError && apiData?.analysis && (
                 <Box sx={{ mt: 2, mb: 2 }}>
                   <BiasScoreDisplay
                     isPlaceholder={false}
-                    score={biasData.score}
-                    leaning={biasData.leaning}
-                    confidence={biasData.confidence}
+                    score={apiData.analysis.bias}
+                    leaning={determineLeaning(apiData.analysis.bias)}
+                    confidence={null}
                   />
 
-                  <Box sx={{ mt: 4 }}>
-                    <AIAnalysisSection analysis={aiAnalysis} />
-                  </Box>
+                  <AIAnalysisSection analysis={apiData.analysis} />
+
+                   {apiData.similar_articles && Object.keys(apiData.similar_articles).length > 0 && (
+                      <SimilarArticlesSection articles={apiData.similar_articles} />
+                   )}
+
                 </Box>
               )}
             </CardContent>

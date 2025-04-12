@@ -7,16 +7,19 @@ interface BiasScoreDisplayProps {
   isPlaceholder: boolean
   score?: number
   leaning?: string
-  confidence?: number
+  confidence?: number | null
 }
 
 export default function BiasScoreDisplay({
   isPlaceholder,
   score = 50,
   leaning = "center",
-  confidence = 80,
+  confidence = null,
 }: BiasScoreDisplayProps) {
   const svgRef = useRef<SVGSVGElement>(null)
+
+  // Normalize score ensures it's between 0 and 100
+  const normalizedScore = score === null ? 50 : Math.max(0, Math.min(100, score));
 
   useEffect(() => {
     if (isPlaceholder || !svgRef.current) return
@@ -24,12 +27,10 @@ export default function BiasScoreDisplay({
     // Animation for the gauge needle
     const needle = svgRef.current.querySelector("#needle")
     if (needle) {
-      const normalizedScore = score > 100 ? 100 : score < 0 ? 0 : score
       const rotation = -90 + normalizedScore * 1.8 // Map 0-100 to -90 to 90 degrees
-
       needle.setAttribute("transform", `rotate(${rotation}, 150, 150)`)
     }
-  }, [isPlaceholder, score])
+  }, [isPlaceholder, normalizedScore])
 
   if (isPlaceholder) {
     return (
@@ -53,12 +54,12 @@ export default function BiasScoreDisplay({
     )
   }
 
-  // Calculate colors based on leaning
-  const gaugeColor = leaning === "left" ? "#1976d2" : "#d32f2f"
+  // Determine color based on leaning prop
+  const gaugeColor = leaning === "left" ? "#1976d2" : leaning === "right" ? "#d32f2f" : "#6c757d"; // Grey for center
 
-  // Calculate gradient stops based on score
-  const leftIntensity = leaning === "left" ? Math.min(100, score * 2) / 100 : 0.1
-  const rightIntensity = leaning === "right" ? Math.min(100, score * 2) / 100 : 0.1
+  // Determine gradient based on normalized score (center bias around 50)
+  const leftIntensity = Math.max(0, (50 - normalizedScore) * 2) / 100; // Intensity increases as score goes below 50
+  const rightIntensity = Math.max(0, (normalizedScore - 50) * 2) / 100; // Intensity increases as score goes above 50
 
   return (
     <Box sx={{ width: "100%", maxWidth: 400, mx: "auto" }}>
@@ -84,7 +85,7 @@ export default function BiasScoreDisplay({
           stroke={gaugeColor}
           strokeWidth="3"
           strokeLinecap="round"
-          transform="rotate(-90, 150, 150)"
+          transform={`rotate(${-90 + normalizedScore * 1.8}, 150, 150)`}
         />
         <circle cx="150" cy="150" r="10" fill={gaugeColor} />
         <circle cx="150" cy="150" r="5" fill="white" />
@@ -115,23 +116,27 @@ export default function BiasScoreDisplay({
           px: 2,
         }}
       >
-        <Box>
-          <Typography variant="body2" color="text.secondary" component="span">
-            Confidence:
-          </Typography>
-          <Typography variant="body2" fontWeight="medium" component="span" sx={{ ml: 0.5 }}>
-            {confidence.toFixed(0)}%
-          </Typography>
+        <Box sx={{ flex: 1, textAlign: 'left' }}>
+          {confidence !== null && (
+            <>
+              <Typography variant="body2" color="text.secondary" component="span">
+                Confidence:
+              </Typography>
+              <Typography variant="body2" fontWeight="medium" component="span" sx={{ ml: 0.5 }}>
+                {confidence.toFixed(0)}%
+              </Typography>
+            </>
+          )}
         </Box>
-        <Box>
-          <Typography variant="h6" fontWeight="bold" component="span" color={leaning === "left" ? "primary" : "error"}>
-            {score.toFixed(1)}
+        <Box sx={{ flex: 1, textAlign: 'center' }}>
+          <Typography variant="h6" fontWeight="bold" component="span" color={gaugeColor}>
+            {normalizedScore.toFixed(1)}
           </Typography>
           <Typography variant="body2" color="text.secondary" component="span" sx={{ ml: 0.5 }}>
             / 100
           </Typography>
         </Box>
-        <Box>
+        <Box sx={{ flex: 1, textAlign: 'right' }}>
           <Typography variant="body2" color="text.secondary" component="span">
             Leaning:
           </Typography>
@@ -139,7 +144,7 @@ export default function BiasScoreDisplay({
             variant="body2"
             fontWeight="medium"
             component="span"
-            color={leaning === "left" ? "primary" : "error"}
+            color={gaugeColor}
             sx={{ ml: 0.5 }}
           >
             {leaning.charAt(0).toUpperCase() + leaning.slice(1)}

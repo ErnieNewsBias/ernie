@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify
+from flask_cors import CORS # Import CORS
 from extract_text import extract_article_metadata, extract_information  # Import both functions
 
 app = Flask(__name__)
+CORS(app, resources={r"/scrape": {"origins": "http://localhost:3000"}}) # Enable CORS for /scrape route from localhost:3000
 
 # API endpoint to scrape, extract text, and calculate a bias score.
 @app.route('/scrape', methods=['GET'])
@@ -36,4 +38,4 @@ def scrape():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5000) # Ensure it runs on port 5000
