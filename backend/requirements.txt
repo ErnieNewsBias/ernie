@@ -9,3 +9,5 @@ google-search-results
 flask-cors
 numpy
 sentence_transformers
+torch
+transformers
