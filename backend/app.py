@@ -3,7 +3,7 @@ from flask_cors import CORS # Import CORS
 from extract_text import extract_article_metadata, extract_information  # Import both functions
 
 app = Flask(__name__)
-CORS(app, resources={r"/scrape": {"origins": "http://localhost:3000"}}) # Enable CORS for /scrape route from localhost:3000
+CORS(app, resources={r"/scrape": {"origins": "http://localhost:3001"}}) # Enable CORS for /scrape route from localhost:3000
 
 # API endpoint to scrape, extract text, and calculate a bias score.
 @app.route('/scrape', methods=['GET'])
@@ -14,6 +14,10 @@ def scrape():
     try:
         # Extract metadata from the provided URL
         article_metadata = extract_article_metadata(url)
+        
+        # Check if we actually got article text
+        if not article_metadata['text'].strip():
+            return jsonify({'error': 'Could not extract text from the provided URL'}), 422
         
         # Pass the extracted text to the extract_information function
         bias, ai_notes, bias_quotes, search_query, scored_search_results = extract_information(article_metadata['text'])
