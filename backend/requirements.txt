@@ -7,3 +7,5 @@ lxml_html_clean
 gunicorn
 google-search-results
 flask-cors
+numpy
+sentence_transformers

@@ -3,7 +3,7 @@ from flask_cors import CORS # Import CORS
 from extract_text import extract_article_metadata, extract_information  # Import both functions
 
 app = Flask(__name__)
-CORS(app, resources={r"/scrape": {"origins": "http://localhost:3001"}}) # Enable CORS for /scrape route from localhost:3000
+CORS(app, resources={r"/scrape": {"origins": ["http://localhost:3001", "https://ernienews-1031077341247.us-central1.run.app"]}}) # Enable CORS for multiple origins
 
 # API endpoint to scrape, extract text, and calculate a bias score.
 @app.route('/scrape', methods=['GET'])

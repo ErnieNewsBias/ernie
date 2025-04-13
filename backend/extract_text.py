@@ -4,6 +4,7 @@ from google.genai import types
 import os
 from dotenv import load_dotenv
 from serpapi import GoogleSearch
+from rank import rank_biased_quotes
 
 load_dotenv()
 
@@ -44,17 +45,13 @@ def extract_information(text):
                     "type": "string",
                     "description": "Give a brief description of the data set and potential bias that may be present"
                 },
-                "bias_quotes": {
-                    "type": "string",
-                    "description": "Give a short list of 1-5 quotes that reflect the bias in this article. Please write them with newline seperators. Make sure the quotes match actual text from the article verbatum"
-                },
                 "search_query":{
                     "type": "string",
                     "description": "Biased on the topics/events/ideas discussed in this article, please generate a search query that will return articles of similar type. For example, lets say this article is titled 'why trump tariffs are great', return a search query called trump tariffs/tariffs. Make sure to eliminate political bias in the search query but capture the relevant event/informatoin of the article."
                 }
 
             },
-            "required": ["ai_notes", "bias_quotes", "search_query"]
+            "required": ["ai_notes", "search_query"]
         }
     }
 
@@ -88,9 +85,8 @@ def extract_information(text):
     # If a function call is returned and it matches our declaration, extract the bias.
     if function_call and function_call.name == "extract_information":
         bias = extract_bias_score(text)
-
+        bias_quotes = rank_biased_quotes(text, n=10)
         ai_notes = function_call.args.get("ai_notes")
-        bias_quotes = function_call.args.get("bias_quotes")
         search_query = function_call.args.get("search_query")
         search_results = get_search_results(search_query) if search_query else None
         scored_search_results = score_search_results(search_results)
@@ -127,6 +123,7 @@ def score_search_results(search_results):
     for url in search_results:
         article_data = extract_article_metadata(url)
         score = extract_bias_score(article_data['text'])
+        #bias_quotes = extract_bias_quotes(article_data['text'])
         
         scored_results[url] = {
             "score": score,

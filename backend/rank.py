@@ -126,7 +126,7 @@ The apparent purpose of the Roe opinion's long historical excursion is to create
     """
     
     try:
-        biased_quotes = rank_biased_quotes(sample_text, n=2)
+        biased_quotes = rank_biased_quotes(sample_text, n=10)
         print("Top biased quotes:")
         for i, quote in enumerate(biased_quotes, 1):
             print(f"{i}. {quote}")
