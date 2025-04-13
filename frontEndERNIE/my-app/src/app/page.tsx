@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
+import Image from "next/image"
 import {
   Box,
   Container,
@@ -13,7 +14,6 @@ import {
   CardContent,
   CircularProgress,
   Paper,
-  Grid,
 } from "@mui/material"
 import BiasScoreDisplay from "@/app/components/bias-score-display"
 import AIAnalysisSection from "@/app/components/ai-analysis-section"
@@ -32,7 +32,7 @@ interface OriginalArticle {
 interface AnalysisData {
   bias: number | null
   ai_notes: string | null
-  bias_quotes: string[] | string | null
+  bias_quotes: string[] | null
   search_query: string | null
 }
 
@@ -123,9 +123,9 @@ export default function Home() {
       setAnalysisComplete(true)
       console.log("Analysis completed for URL:", processUrl)
 
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("API call failed:", error)
-      setApiError(error.message || "An unknown error occurred")
+      setApiError(error instanceof Error ? error.message : "An unknown error occurred")
       setAnalysisComplete(false)
     } finally {
       setIsLoading(false)
@@ -273,11 +273,12 @@ export default function Home() {
              // padding at bottom
           }}
           >
-          <img
+          <Image
             src="https://cdn.discordapp.com/attachments/1360451825450488009/1360734896519118998/abc.png?ex=67fc32a0&is=67fae120&hm=8f7c9012ec931925cce62140d3191101b45bccaff19f80c8e315c3f077d0cd60&"
             alt="ErnieNews Logo"
+            width={200}
+            height={80}
             style={{
-              width: '200px', // adjust width as needed
               maxWidth: '80%',
               height: 'auto',
             }}

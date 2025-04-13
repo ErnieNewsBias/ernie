@@ -13,7 +13,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  Paper,
   IconButton,
 } from "@mui/material"
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
@@ -69,7 +68,9 @@ export default function AIAnalysisSection({ analysis }: AIAnalysisProps) {
   // Handle both string and string[] types for bias_quotes
   const biasQuoteList = Array.isArray(analysis.bias_quotes) 
     ? analysis.bias_quotes 
-    : (analysis.bias_quotes?.split('\n').filter(q => q.trim() !== '') || []);
+    : (typeof analysis.bias_quotes === 'string' 
+        ? analysis.bias_quotes.split('\n').filter(q => q.trim() !== '') 
+        : []);
 
   return (
     <Box sx={{ mt: 4 }}>
