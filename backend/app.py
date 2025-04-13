@@ -10,11 +10,7 @@ import time
 app = Flask(__name__)
 
 # Configure CORS to allow requests from multiple origins
-CORS(app, resources={r"/scrape": {"origins": [
-    "http://localhost:3000"
-    "http://localhost:3001", 
-    "https://ernienews-1031077341247.us-central1.run.app"
-]}}) 
+CORS(app, resources={r"/scrape": {"origins": "*"}})
 
 # API endpoint to scrape, extract text, and calculate a bias score.
 @app.route('/scrape', methods=['GET'])
