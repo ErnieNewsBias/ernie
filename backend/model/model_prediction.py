@@ -29,13 +29,26 @@ def run_model_prediction(input_text, use_local_model):
     if use_local_model:
         model_path = os.path.join(os.path.dirname(__file__), 'distilbert_media_bias_model_v3')
     else:
+        # Use a PERSISTENT cache directory instead of a temporary one
+        cache_dir = "/app/model_cache"  # Persistent location in container
+        os.makedirs(cache_dir, exist_ok=True)
+        
         bucket_name = "distilbert-models"
         gcs_model_dir = 'distilbert_media_bias_model_v3'
-
-        tmp_dir = tempfile.TemporaryDirectory()
-        local_model_path = tmp_dir.name
-        download_model_from_gcs(bucket_name, gcs_model_dir, local_model_path)
-        model_path = local_model_path
+        
+        # Check if model files already exist in cache
+        required_files = ["config.json", "model.safetensors", "special_tokens_map.json", 
+                          "tokenizer_config.json", "vocab.txt"]
+        files_exist = all(os.path.isfile(os.path.join(cache_dir, f)) for f in required_files)
+        
+        # Only download if files don't exist
+        if not files_exist:
+            print(f"Model not found in cache, downloading to {cache_dir}")
+            download_model_from_gcs(bucket_name, gcs_model_dir, cache_dir)
+        else:
+            print(f"Using cached model from {cache_dir}")
+        
+        model_path = cache_dir
 
     tokenizer = DistilBertTokenizer.from_pretrained(model_path)
     model = DistilBertForSequenceClassification.from_pretrained(model_path)

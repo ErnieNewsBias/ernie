@@ -146,7 +146,7 @@ def get_bias_score(text, url):
     print(f"[THREAD:{thread_name}] get_bias_score: Found {len(bias_quotes)} quotes in {quote_time - start_time:.2f} seconds")
     
     print(f"[THREAD:{thread_name}] get_bias_score: Scoring quotes with generate_scores")
-    bias_score = generate_scores(bias_quotes, url, use_local_model=True)
+    bias_score = generate_scores(bias_quotes, url, use_local_model=False)
     end_time = time.time()
     print(f"[THREAD:{thread_name}] get_bias_score: Finished scoring in {end_time - quote_time:.2f} seconds")
     
