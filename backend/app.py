@@ -2,6 +2,10 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS # Import CORS
 from extract_text import extract_article_metadata, extract_information  # Import both functions
 import os
+from concurrent.futures import ThreadPoolExecutor
+from process import process_url
+import threading
+import time
 
 app = Flask(__name__)
 
@@ -15,22 +19,34 @@ CORS(app, resources={r"/scrape": {"origins": [
 # API endpoint to scrape, extract text, and calculate a bias score.
 @app.route('/scrape', methods=['GET'])
 def scrape():
+    thread_name = threading.current_thread().name
+    print(f"[THREAD:{thread_name}] scrape: Received request for URL: {request.args.get('url', 'None')}")
+    
     url = request.args.get('url')
     if not url:
+        print(f"[THREAD:{thread_name}] scrape: Missing URL parameter")
         return jsonify({'error': 'URL parameter is required'}), 400
+    
     try:
-        # Extract metadata from the provided URL
+        print(f"[THREAD:{thread_name}] scrape: Processing URL: {url}")
+        start_time = time.time()
+        
+        # Process URL using the multithreaded function
+        ai_notes, similar_articles, bias_score, search_query = process_url(url)
+        
+        print(f"[THREAD:{thread_name}] scrape: URL processed in {time.time() - start_time:.2f} seconds")
+        print(f"[THREAD:{thread_name}] scrape: Getting article metadata")
+        
+        # Extract article metadata for the response
         article_metadata = extract_article_metadata(url)
         
-        # Check if we actually got article text
-        if not article_metadata['text'].strip():
-            return jsonify({'error': 'Could not extract text from the provided URL'}), 422
+        # Calculate overall bias
+        overall_bias = sum(bias_score.values()) / len(bias_score) if bias_score else 0
+        print(f"[THREAD:{thread_name}] scrape: Overall bias score: {overall_bias}")
         
-        # Pass the extracted text to the extract_information function
-        bias, ai_notes, bias_quotes, search_query, scored_search_results = extract_information(article_metadata['text'])
-        
-        # Return all data to the frontend
-        return jsonify({
+        # Prepare response
+        print(f"[THREAD:{thread_name}] scrape: Preparing JSON response")
+        response = jsonify({
             'original_article': {
                 'url': url,
                 'title': article_metadata['title'],
@@ -38,14 +54,22 @@ def scrape():
                 'text_preview': article_metadata['text'][:150] + "..." if len(article_metadata['text']) > 150 else article_metadata['text']
             },
             'analysis': {
-                'bias': bias,
+                'bias': overall_bias,
                 'ai_notes': ai_notes,
-                'bias_quotes': bias_quotes,
-                'search_query': search_query
+                'bias_quotes': list(bias_score.keys()) if bias_score else [],
+                'bias_score': bias_score,
+                'search_query': search_query if search_query else ""
             },
-            'similar_articles': scored_search_results
+            'similar_articles': similar_articles
         })
+        
+        print(f"[THREAD:{thread_name}] scrape: Request completed successfully in {time.time() - start_time:.2f} seconds")
+        return response
+        
     except Exception as e:
+        print(f"[THREAD:{thread_name}] [ERROR] scrape: {str(e)}")
+        import traceback
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':

@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 from serpapi import GoogleSearch
 from rank import rank_biased_quotes
-
+from model.generate_score import generate_scores
 load_dotenv()
 
 
@@ -23,7 +23,7 @@ def extract_important_text(url):
 def extract_bias_score(text):
     return 0
 
-def extract_information(text):
+def extract_information(text, url):
     """
     Calls the Gemini API using function calling to determine a political bias score
     from the provided article text. The function declaration 'extract_information' expects ai notes, quotes, and a serach query for similar articles
@@ -86,12 +86,13 @@ def extract_information(text):
     if function_call and function_call.name == "extract_information":
         bias = extract_bias_score(text)
         bias_quotes = rank_biased_quotes(text, n=10)
+        bias_score = generate_scores(bias_quotes, url, use_local_model=True)
         ai_notes = function_call.args.get("ai_notes")
         search_query = function_call.args.get("search_query")
         search_results = get_search_results(search_query) if search_query else None
         scored_search_results = score_search_results(search_results)
         
-        return bias, ai_notes, bias_quotes, search_query, scored_search_results
+        return bias, ai_notes, bias_quotes, search_query, scored_search_results, bias_score
     else:
         # If no valid function call is returned, default to a neutral bias.
         return 0
@@ -101,7 +102,7 @@ def get_search_results(query, n=5):
         "q": query,
         "hl": "en",
         "gl": "us",
-        "api_key": "6cb3156290a61e214fed08d5adf8a31b2c1134dbe07d7543078451f4dbed6186"
+        "api_key": "1fa97dc33d9cb1985b6d9207fc2d739b80addd59136c86e24d5b4e0473a6ff98"
     }
     search = GoogleSearch(params)
     results = search.get_dict()

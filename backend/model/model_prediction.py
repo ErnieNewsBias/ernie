@@ -20,7 +20,7 @@ def download_model_from_gcs(bucket_name, gcs_model_dir, local_dir):
 
 def run_model_prediction(input_text, use_local_model):
     if use_local_model:
-        model_path = './distilbert_media_bias_model_v3'
+        model_path = os.path.join(os.path.dirname(__file__), 'distilbert_media_bias_model_v3')
     else:
         bucket_name = "distilbert-models"
         gcs_model_dir = 'distilbert_media_bias_model_v3'
@@ -35,7 +35,7 @@ def run_model_prediction(input_text, use_local_model):
     model.eval()
 
     print("is device cuda", torch.cuda.is_available())
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    device = torch.device("mps" if torch.backends.mps.is_available() else "cpu")
     model.to(device)
 
     inputs = tokenizer(
