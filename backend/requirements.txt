@@ -9,5 +9,6 @@ google-search-results
 flask-cors
 numpy
 sentence_transformers
-torch
+torch==2.6.0
 transformers
+google-cloud-storage
