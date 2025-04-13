@@ -118,7 +118,7 @@ PROVIDE THE JSON OBJECT IN ONE LINE SO IT CAN BE READ INTO A JSON OBJECT IN PYTH
 
     return trimmed_out
 
-def generate_scores(quotes_list, url):
+def generate_scores(quotes_list, url, use_local_model):
     start_time = time.time()
     print("Starting model prediction... @ ", start_time)
 
@@ -126,7 +126,7 @@ def generate_scores(quotes_list, url):
     bias_list = []
     for quote in quotes_list:
         # clean quote of special\u characters
-        bias_score = mp.run_model_prediction(quote)
+        bias_score = mp.run_model_prediction(quote, use_local_model)
         print(f"Model prediction bias: {bias_score:.2f}")
         bias_list.append(bias_score)
 
@@ -163,4 +163,4 @@ quotes = [
 
 url = "https://www.msnbc.com/opinion/msnbc-opinion/trump-constitution-citizenship-test-immigration-rcna200435"
 
-generate_scores(quotes, url)
+generate_scores(quotes, url, use_local_model=True)
