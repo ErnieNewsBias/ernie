@@ -33,7 +33,7 @@ export default function BiasScoreDisplay({
 
   if (isPlaceholder) {
     return (
-      <Box sx={{ width: "100%", maxWidth: 400, mx: "auto" }}>
+      <Box sx={{ width: "100%", maxWidth: 400, mr: -11 }}>
         <svg width="300" height="200" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
           <path d="M30,150 A120,120 0 0,1 270,150" stroke="#E5E7EB" strokeWidth="20" strokeLinecap="round" />
           <text x="150" y="180" textAnchor="middle" fill="#9CA3AF" fontSize="14px">

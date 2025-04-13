@@ -161,7 +161,7 @@ export default function Home() {
         }}
       >
         <Container maxWidth="md">
-          <Typography variant="h4" component="h1" gutterBottom sx={{ fontFamily: 'Garamond', fontWeight: 'bold', color: 'white',textShadow: '1px 1px 3px rgba(0,0,0,0.6)'}}>
+          <Typography variant="h4" component="h1" gutterBottom sx={{ fontFamily: 'Brush Script MT', fontWeight: 'semi-bold', color: 'white',textShadow: '1px 1px 3px rgba(0,0,0,0.6)'}}>
                 Article Bias Analyzer
           </Typography>
           <Typography variant="body1" color="white" sx={{ mb: 4 , fontWeight: 'bold' }}>
