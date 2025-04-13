@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import {
   Box,
@@ -18,7 +17,6 @@ import {
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 import ExpandLessIcon from "@mui/icons-material/ExpandLess"
 import DescriptionIcon from "@mui/icons-material/Description"
-import FormatQuoteIcon from '@mui/icons-material/FormatQuote'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -42,11 +40,14 @@ function TabPanel(props: TabPanelProps) {
   )
 }
 
+interface AIAnalysisData {
+  ai_notes: string | null
+  bias_quotes: string[] | string | null
+  bias_score: Record<string, number> | null
+}
+
 interface AIAnalysisProps {
-  analysis: {
-    ai_notes: string | null
-    bias_quotes: string[] | string | null
-  } | null
+  analysis: AIAnalysisData | null
 }
 
 export default function AIAnalysisSection({ analysis }: AIAnalysisProps) {
@@ -55,22 +56,24 @@ export default function AIAnalysisSection({ analysis }: AIAnalysisProps) {
 
   if (!analysis) {
     return (
-        <Typography variant="body2" color="text.secondary" sx={{ mt: 4 }}>
-            Analysis data unavailable.
-        </Typography>
-    );
+      <Typography variant="body2" color="text.secondary" sx={{ mt: 4 }}>
+        Analysis data unavailable.
+      </Typography>
+    )
   }
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue)
   }
 
-  // Handle both string and string[] types for bias_quotes
-  const biasQuoteList = Array.isArray(analysis.bias_quotes) 
-    ? analysis.bias_quotes 
-    : (typeof analysis.bias_quotes === 'string' 
-        ? analysis.bias_quotes.split('\n').filter(q => q.trim() !== '') 
-        : []);
+  const biasQuoteList = Array.isArray(analysis.bias_quotes)
+    ? analysis.bias_quotes
+    : typeof analysis.bias_quotes === "string"
+    ? analysis.bias_quotes.split("\n").filter((q) => q.trim() !== "")
+    : []
+
+  const biasScoreArray = analysis.bias_score ? Object.values(analysis.bias_score) : []
+  console.log("biasScoreArray", biasScoreArray)
 
   return (
     <Box sx={{ mt: 4 }}>
@@ -96,42 +99,68 @@ export default function AIAnalysisSection({ analysis }: AIAnalysisProps) {
           <TabPanel value={tabValue} index={0}>
             <Card variant="outlined">
               <CardContent>
-                <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
-                    {analysis.ai_notes ?? "No AI notes available."}
+                <Typography variant="body1" sx={{ whiteSpace: "pre-wrap" }}>
+                  {analysis.ai_notes ?? "No AI notes available."}
                 </Typography>
               </CardContent>
             </Card>
           </TabPanel>
 
           <TabPanel value={tabValue} index={1}>
-             {biasQuoteList.length > 0 ? (
-                 <Card variant="outlined">
-                    <CardContent>
-                        <List disablePadding>
-                        {biasQuoteList.map((quote, index) => (
-                            <ListItem key={index} sx={{ py: 1, alignItems: 'flex-start' }}>
-                                <FormatQuoteIcon sx={{ mr: 1, mt: 0.5, color: 'text.secondary', fontSize: '1.2rem' }} />
-                                <ListItemText
-                                    primary={
-                                        <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
-                                            {quote}
-                                        </Typography>
-                                    }
-                                />
-                            </ListItem>
-                        ))}
-                        </List>
-                    </CardContent>
-                 </Card>
-             ) : (
-                <Card variant="outlined">
-                    <CardContent>
-                        <Typography variant="body2" color="text.secondary">
-                            No bias quotes identified.
-                        </Typography>
-                    </CardContent>
-                </Card>
-             )}
+            {biasQuoteList.length > 0 ? (
+              <Card variant="outlined">
+                <CardContent>
+                  <List disablePadding>
+                    {biasQuoteList.map((quote, index) => {
+                      // look up bias score
+                      const score = biasScoreArray[index] * 10
+                      // determine color
+                      let scoreColor = "#6c757d"
+                      if (score !== undefined) {
+                        scoreColor = score < 0 ? "#0b52e1" : score > 0 ? "#ce1717" : "#6c757d"
+                      }
+                      return (
+                        <ListItem key={index} sx={{ py: 1, alignItems: "flex-start" }}>
+                          <Box
+                            sx={{
+                              mr: 1,
+                              mt: 0.5,
+                              width: 32,
+                              height: 32,
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                              borderRadius: "50%",
+                              backgroundColor: scoreColor,
+                              color: "white",
+                              fontSize: "0.75rem",
+                              flexShrink: 0,
+                            }}
+                          >
+                            {score !== undefined ? score.toFixed(1) : "N/A"}
+                          </Box>
+                          <ListItemText
+                            primary={
+                              <Typography variant="body2" sx={{ fontStyle: "italic" }}>
+                                {quote}
+                              </Typography>
+                            }
+                          />
+                        </ListItem>
+                      )
+                    })}
+                  </List>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card variant="outlined">
+                <CardContent>
+                  <Typography variant="body2" color="text.secondary">
+                    No bias quotes identified.
+                  </Typography>
+                </CardContent>
+              </Card>
+            )}
           </TabPanel>
         </Box>
       )}

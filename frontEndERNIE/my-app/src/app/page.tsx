@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import Image from "next/image"
 import {
@@ -21,7 +20,6 @@ import SimilarArticlesSection from "@/app/components/similar-articles-section"
 import { ThemeProvider, createTheme } from "@mui/material/styles"
 import CssBaseline from "@mui/material/CssBaseline"
 
-// --- Interfaces for API data ---
 interface OriginalArticle {
   url: string
   title: string | null
@@ -33,21 +31,21 @@ interface AnalysisData {
   bias: number | null
   ai_notes: string | null
   bias_quotes: string[] | null
+  bias_score: Record<string, number> | null
   search_query: string | null
 }
 
 interface SimilarArticleDetail {
-    image_url: string | null
-    score: number
-    text_preview: string | null
-    title: string | null
+  image_url: string | null
+  score: number
+  text_preview: string | null
+  title: string | null
 }
 
 interface SimilarArticlesData {
-  [url: string]: SimilarArticleDetail;
+  [url: string]: SimilarArticleDetail
 }
 
-// Create a theme
 const theme = createTheme({
   palette: {
     primary: {
@@ -57,7 +55,7 @@ const theme = createTheme({
       main: "#dc004e",
     },
     background: {
-      default: "#95c2ee", // Set this to match your gradient start color
+      default: "#95c2ee",
     },
   },
   typography: {
@@ -82,7 +80,7 @@ export default function Home() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     console.log("Form submitted with URL:", url)
-  
+
     if (!url) {
       console.log("URL is empty, not proceeding")
       return
@@ -122,7 +120,6 @@ export default function Home() {
 
       setAnalysisComplete(true)
       console.log("Analysis completed for URL:", processUrl)
-
     } catch (error: unknown) {
       console.error("API call failed:", error)
       setApiError(error instanceof Error ? error.message : "An unknown error occurred")
@@ -133,20 +130,16 @@ export default function Home() {
   }
 
   const handleAnalyzeSimilarArticle = (newUrl: string) => {
-    setUrl(newUrl);
-    // Create a synthetic event that's compatible with React.FormEvent
-    const syntheticEvent = {
-      preventDefault: () => {},
-    } as React.FormEvent;
-    
-    handleSubmit(syntheticEvent);
-  };
+    setUrl(newUrl)
+    const syntheticEvent = { preventDefault: () => {} } as React.FormEvent
+    handleSubmit(syntheticEvent)
+  }
 
   const determineLeaning = (score: number | null): string => {
-    if (score === null) return 'center';
-    if (score < 40) return 'left';
-    if (score > 60) return 'right';
-    return 'center';
+    if (score === null) return 'center'
+    if (score < 40) return 'left'
+    if (score > 60) return 'right'
+    return 'center'
   }
 
   return (
@@ -161,10 +154,20 @@ export default function Home() {
         }}
       >
         <Container maxWidth="md">
-          <Typography variant="h4" component="h1" gutterBottom sx={{ fontFamily: 'Brush Script MT', fontWeight: 'semi-bold', color: 'white',textShadow: '1px 1px 3px rgba(0,0,0,0.6)'}}>
-                Article Bias Analyzer
+          <Typography
+            variant="h4"
+            component="h1"
+            gutterBottom
+            sx={{
+              fontFamily: 'Brush Script MT',
+              fontWeight: 'semi-bold',
+              color: 'white',
+              textShadow: '1px 1px 3px rgba(0,0,0,0.6)',
+            }}
+          >
+            Article Bias Analyzer
           </Typography>
-          <Typography variant="body1" color="white" sx={{ mb: 4 , fontWeight: 'bold' }}>
+          <Typography variant="body1" color="white" sx={{ mb: 4, fontWeight: 'bold' }}>
             <span style={{ fontFamily: 'Garamond' }}>
               Enter a link to any article to analyze its political bias and receive an AI-powered content analysis.
             </span>
@@ -195,11 +198,12 @@ export default function Home() {
                   disabled={isLoading || !url}
                   sx={{
                     background: "linear-gradient(to bottom right, #628fe9, #f07d7d)",
-    color: "white",
-    fontWeight: "bold",
-    "&:hover": {
-      background: "linear-gradient(to bottom right, #5076c7, #d96c6c)",
-                  }}}
+                    color: "white",
+                    fontWeight: "bold",
+                    "&:hover": {
+                      background: "linear-gradient(to bottom right, #5076c7, #d96c6c)",
+                    },
+                  }}
                   startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
                 >
                   {isLoading ? "Analyzing..." : "Analyze Article"}
@@ -213,7 +217,7 @@ export default function Home() {
             </form>
           </Paper>
 
-          <Card elevation = {5} sx={{ mt: 4 }}>
+          <Card elevation={5} sx={{ mt: 4 }}>
             <CardContent>
               {!analysisComplete && !isLoading && !apiError && (
                 <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", py: 4 }}>
@@ -234,12 +238,14 @@ export default function Home() {
               )}
 
               {apiError && !isLoading && (
-                 <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", py: 4 }}>
-                    <Typography color="error" variant="h6">Analysis Failed</Typography>
-                    <Typography color="error" variant="body1" sx={{ mt: 1 }}>
-                      {apiError}
-                    </Typography>
-                 </Box>
+                <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", py: 4 }}>
+                  <Typography color="error" variant="h6">
+                    Analysis Failed
+                  </Typography>
+                  <Typography color="error" variant="body1" sx={{ mt: 1 }}>
+                    {apiError}
+                  </Typography>
+                </Box>
               )}
 
               {analysisComplete && !apiError && apiData?.analysis && (
@@ -253,37 +259,35 @@ export default function Home() {
 
                   <AIAnalysisSection analysis={apiData.analysis} />
 
-                   {apiData.similar_articles && Object.keys(apiData.similar_articles).length > 0 && (
-                      <SimilarArticlesSection
+                  {apiData.similar_articles && Object.keys(apiData.similar_articles).length > 0 && (
+                    <SimilarArticlesSection
                       articles={apiData.similar_articles}
                       onAnalyze={handleAnalyzeSimilarArticle}
                     />
-                   )}
-
+                  )}
                 </Box>
               )}
             </CardContent>
           </Card>
           <Box
-          sx={{
-            mt: 6,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            flexDirection: 'column',
-            pb: 4,
-             // padding at bottom
-          }}
-          >
-          <Image
-            src="https://cdn.discordapp.com/attachments/1360451825450488009/1360734896519118998/abc.png?ex=67fc32a0&is=67fae120&hm=8f7c9012ec931925cce62140d3191101b45bccaff19f80c8e315c3f077d0cd60&"
-            alt="ErnieNews Logo"
-            width={200}
-            height={80}
-            style={{
-              maxWidth: '80%',
-              height: 'auto',
+            sx={{
+              mt: 6,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              flexDirection: 'column',
+              pb: 4,
             }}
+          >
+            <Image
+              src="https://cdn.discordapp.com/attachments/1360451825450488009/1360734896519118998/abc.png?ex=67fc32a0&is=67fae120&hm=8f7c9012ec931925cce62140d3191101b45bccaff19f80c8e315c3f077d0cd60&"
+              alt="ErnieNews Logo"
+              width={200}
+              height={80}
+              style={{
+                maxWidth: '80%',
+                height: 'auto',
+              }}
             />
             <Typography variant="caption" color="white" sx={{ mt: 1 }}>
               © 2025 ErnieNews

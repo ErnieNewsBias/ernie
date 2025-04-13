@@ -19,7 +19,9 @@ export default function BiasScoreDisplay({
   const svgRef = useRef<SVGSVGElement>(null)
 
   // Clamp score between -100 and 100
-  const clampedScore = Math.max(-100, Math.min(100, score ?? 0))
+  const clampedScore = Math.max(-100, Math.min(100, score ?? 0))*10
+  const computedLean = clampedScore < 0 ? "Left" : clampedScore > 0 ? "Right" : "center"
+
 
   useEffect(() => {
     if (isPlaceholder || !svgRef.current) return
@@ -53,7 +55,7 @@ export default function BiasScoreDisplay({
     )
   }
 
-  const gaugeColor = leaning === "left" ? "#0b52e1" : leaning === "right" ? "#ce1717" : "#6c757d"
+  const gaugeColor = leaning === "Left" ? "#0b52e1" : leaning === "Right" ? "#ce1717" : "#6c757d"
 
   const leftIntensity = Math.max(0, -clampedScore) / 100
   const rightIntensity = Math.max(0, clampedScore) / 100
@@ -144,7 +146,7 @@ export default function BiasScoreDisplay({
             color={gaugeColor}
             sx={{ ml: 0.5 }}
           >
-            {leaning.charAt(0).toUpperCase() + leaning.slice(1)}
+            {computedLean}
           </Typography>
         </Box>
       </Box>
