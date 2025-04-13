@@ -1,9 +1,15 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS # Import CORS
 from extract_text import extract_article_metadata, extract_information  # Import both functions
+import os
 
 app = Flask(__name__)
-CORS(app, resources={r"/scrape": {"origins": ["http://localhost:3001", "https://ernienews-1031077341247.us-central1.run.app"]}}) # Enable CORS for multiple origins
+
+# Configure CORS to allow requests from multiple origins
+CORS(app, resources={r"/scrape": {"origins": [
+    "http://localhost:3001", 
+    "https://ernienews-1031077341247.us-central1.run.app"
+]}}) 
 
 # API endpoint to scrape, extract text, and calculate a bias score.
 @app.route('/scrape', methods=['GET'])
@@ -42,4 +48,7 @@ def scrape():
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=8080) # Ensure it runs on port 5000
+    # Cloud Run sets this environment variable
+    port = int(os.environ.get('PORT', 8080))
+    # Must listen on 0.0.0.0 for Cloud Run
+    app.run(host='0.0.0.0', port=port, debug=False)
