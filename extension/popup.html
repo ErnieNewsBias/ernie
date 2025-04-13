@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>Ernie News</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <h1>Ernie News</h1>
+  <button id="analyzeBtn">Analyze Page</button>
+
+  <div id="result" class="hidden">
+    <div class="meter-container">
+      <div id="biasLabel">Score: 0</div>
+      <div class="bias-meter">
+        <div id="meterFill" class="fill"></div>
+      </div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab" data-tab="notes">AI Notes</button>
+      <button class="tab" data-tab="quotes">Biased Quotes</button>
+    </div>
+
+    <div id="tabContent" class="content-box"></div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

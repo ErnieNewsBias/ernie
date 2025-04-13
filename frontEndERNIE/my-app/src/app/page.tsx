@@ -32,7 +32,7 @@ interface OriginalArticle {
 interface AnalysisData {
   bias: number | null
   ai_notes: string | null
-  bias_quotes: string | null
+  bias_quotes: string[] | string | null
   search_query: string | null
 }
 
@@ -101,7 +101,7 @@ export default function Home() {
     setApiError(null)
 
     try {
-      const apiUrl = `http://127.0.0.1:5000/scrape?url=${encodeURIComponent(processUrl)}`
+      const apiUrl = `https://ernie-1031077341247.us-central1.run.app/scrape?url=${encodeURIComponent(processUrl)}`
       console.log("Calling API:", apiUrl)
 
       const response = await fetch(apiUrl)
@@ -132,9 +132,14 @@ export default function Home() {
     }
   }
 
-  const handleAnalyzeSimilarArticle = async (newUrl: string) => {
+  const handleAnalyzeSimilarArticle = (newUrl: string) => {
     setUrl(newUrl);
-    await handleSubmit(new Event('submit') as unknown as React.FormEvent);
+    // Create a synthetic event that's compatible with React.FormEvent
+    const syntheticEvent = {
+      preventDefault: () => {},
+    } as React.FormEvent;
+    
+    handleSubmit(syntheticEvent);
   };
 
   const determineLeaning = (score: number | null): string => {
@@ -159,9 +164,10 @@ export default function Home() {
           <Typography variant="h4" component="h1" gutterBottom sx={{ fontFamily: 'Garamond', fontWeight: 'bold', color: 'white',textShadow: '1px 1px 3px rgba(0,0,0,0.6)'}}>
                 Article Bias Analyzer
           </Typography>
-          <Typography variant="body1" color="white" sx={{ mb: 4 , fontWeight: 'bold' }}><font face = "Garamond">
-            Enter a link to any article to analyze its political bias and receive an AI-powered content analysis.
-            </font>
+          <Typography variant="body1" color="white" sx={{ mb: 4 , fontWeight: 'bold' }}>
+            <span style={{ fontFamily: 'Garamond' }}>
+              Enter a link to any article to analyze its political bias and receive an AI-powered content analysis.
+            </span>
           </Typography>
 
           <Paper elevation={5} sx={{ p: 2, mb: 2 }}>
@@ -238,7 +244,7 @@ export default function Home() {
                 <Box sx={{ mt: 2, mb: 2 }}>
                   <BiasScoreDisplay
                     isPlaceholder={false}
-                    score={apiData.analysis.bias}
+                    score={apiData.analysis.bias ?? undefined}
                     leaning={determineLeaning(apiData.analysis.bias)}
                     confidence={null}
                   />

@@ -82,9 +82,10 @@ export default function SimilarArticlesSection({ articles, onAnalyze }: SimilarA
   image={details.image_url || "https://cdn.discordapp.com/attachments/1360451825450488009/1360743647359799486/BLUEELEPLAHNT.png?ex=67fc3ac6&is=67fae946&hm=9efd46028b480bd0f14e2820e5b6a55a9c74e21406fa2dde09b613498d684fc4&"}
   alt={details.title || 'Article image'}
   sx={{ objectFit: 'cover' }}
-  onError={(e: any) => {
-    e.target.onerror = null;
-    e.target.src = "https://cdn.discordapp.com/attachments/1360451825450488009/1360743647359799486/BLUEELEPLAHNT.png?ex=67fc3ac6&is=67fae946&hm=9efd46028b480bd0f14e2820e5b6a55a9c74e21406fa2dde09b613498d684fc4&";
+  onError={(e: React.SyntheticEvent<HTMLImageElement>) => {
+    const target = e.currentTarget;
+    target.onerror = null;
+    target.src = "https://cdn.discordapp.com/attachments/1360451825450488009/1360743647359799486/BLUEELEPLAHNT.png?ex=67fc3ac6&is=67fae946&hm=9efd46028b480bd0f14e2820e5b6a55a9c74e21406fa2dde09b613498d684fc4&";
   }}
 />
               <CardContent sx={{ flexGrow: 1 }}>

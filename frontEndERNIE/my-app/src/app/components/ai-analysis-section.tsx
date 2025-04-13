@@ -46,7 +46,7 @@ function TabPanel(props: TabPanelProps) {
 interface AIAnalysisProps {
   analysis: {
     ai_notes: string | null
-    bias_quotes: string | null
+    bias_quotes: string[] | string | null
   } | null
 }
 
@@ -62,11 +62,14 @@ export default function AIAnalysisSection({ analysis }: AIAnalysisProps) {
     );
   }
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue)
   }
 
-  const biasQuoteList = analysis.bias_quotes?.split('\n').filter(q => q.trim() !== '') ?? [];
+  // Handle both string and string[] types for bias_quotes
+  const biasQuoteList = Array.isArray(analysis.bias_quotes) 
+    ? analysis.bias_quotes 
+    : (analysis.bias_quotes?.split('\n').filter(q => q.trim() !== '') || []);
 
   return (
     <Box sx={{ mt: 4 }}>
@@ -86,7 +89,6 @@ export default function AIAnalysisSection({ analysis }: AIAnalysisProps) {
             <Tabs value={tabValue} onChange={handleTabChange} aria-label="analysis tabs" variant="fullWidth">
               <Tab label="AI Notes" id="analysis-tab-0" aria-controls="analysis-tabpanel-0" />
               <Tab label="Bias Quotes" id="analysis-tab-1" aria-controls="analysis-tabpanel-1" />
-
             </Tabs>
           </Box>
 
