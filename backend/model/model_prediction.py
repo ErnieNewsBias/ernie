@@ -3,20 +3,27 @@ from transformers import DistilBertTokenizer, DistilBertForSequenceClassificatio
 from google.cloud import storage
 import os
 import tempfile
-
+import requests
 
 def download_model_from_gcs(bucket_name, gcs_model_dir, local_dir):
-    client = storage.Client()
-    bucket = client.bucket(bucket_name)
-    blobs = bucket.list_blobs(prefix=gcs_model_dir)
+    base_url = f"https://storage.googleapis.com/{bucket_name}/{gcs_model_dir}"
+    files = [
+        "config.json",
+        "model.safetensors",
+        "special_tokens_map.json",
+        "tokenizer_config.json",
+        "vocab.txt"
+    ]
 
-    for blob in blobs:
-        filename = blob.name.split('/')[-1]
-        if filename:
-            local_path = os.path.join(local_dir, filename)
-            blob.download_to_filename(local_path)
-            print(f"Downloaded {filename} to {local_path}")
-
+    os.makedirs(local_dir, exist_ok=True)
+    for file in files:
+        url = f"{base_url}/{file}"
+        local_path = os.path.join(local_dir, file)
+        print(f"Downloading {url}")
+        response = requests.get(url)
+        with open(local_path, 'wb') as f:
+            f.write(response.content)
+        print(f"Saved to {local_path}")
 
 def run_model_prediction(input_text, use_local_model):
     if use_local_model:
