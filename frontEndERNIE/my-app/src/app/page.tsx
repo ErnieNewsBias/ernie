@@ -191,13 +191,15 @@ export default function Home() {
                 />
                 <Button
                   variant="contained"
-                  color="primary"
                   type="submit"
                   disabled={isLoading || !url}
                   sx={{
-                    height: { sm: 56 },
-                    minWidth: { xs: "100%", sm: 150 },
-                  }}
+                    background: "linear-gradient(to bottom right, #628fe9, #f07d7d)",
+    color: "white",
+    fontWeight: "bold",
+    "&:hover": {
+      background: "linear-gradient(to bottom right, #5076c7, #d96c6c)",
+                  }}}
                   startIcon={isLoading ? <CircularProgress size={20} color="inherit" /> : null}
                 >
                   {isLoading ? "Analyzing..." : "Analyze Article"}
